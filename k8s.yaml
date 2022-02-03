@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nanopaperwallet
+  annotations:
+    dev.okteto.com/auto-ingress: "true"  
+spec:
+  ports:
+  - name: app
+    port: 5000
+    targetPort: 5000
+  selector:
+    app: nanopaperwallet-app
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nanopaperwallet-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nanopaperwallet-app
+  template:
+    metadata:
+      labels:
+        app: nanopaperwallet-app
+    spec:
+      containers:
+      - env:
+        - name: FLASK_APP
+          value: autoapp.py
+        - name: FLASK_DEBUG
+          value: "0"
+        - name: APP_SECRET
+          value: ABCD1234
+        image: appditto/nanopaperwallet:master-1699674587
+        name: nanopaperwallet-app
+        ports:
+        - containerPort: 5000
+          name: app
